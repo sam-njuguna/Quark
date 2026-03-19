@@ -1,36 +1,94 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Quark Documentation
+
+Welcome to the Quark documentation.
+
+## Quick Links
+
+| Document | Description |
+|----------|-------------|
+| [Project Overview](OVERVIEW.md) | Vision, problem solved, competitive landscape |
+| [Technical Docs](QUARK.md) | Architecture, API, database, setup |
+| [KPIs](KPIs.md) | Metrics and analytics |
+| [Agent Guidelines](Agents.md) | How AI agents should use Quark |
+
+## Architecture Overview
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                        HUMAN                                 │
+│         (Interacts via Dashboard or IDE/AI)                 │
+└────────────────────────┬────────────────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────────────────┐
+│                   NEXT.JS 16 APP                           │
+│                                                             │
+│   ┌─────────────┐    ┌─────────────┐    ┌─────────────┐   │
+│   │  Dashboard  │    │    MCP      │    │   Server    │   │
+│   │  (Shadcn)   │    │   Handler   │    │   Actions   │   │
+│   └─────────────┘    └─────────────┘    └─────────────┘   │
+│                                                             │
+│   ┌─────────────────────────────────────────────────────┐   │
+│   │              BETTER AUTH (Proxy Middleware)        │   │
+│   └─────────────────────────────────────────────────────┘   │
+└────────────────────────┬────────────────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    NEON DATABASE                            │
+│                                                             │
+│   ┌────────┐  ┌────────┐  ┌────────┐  ┌────────────┐      │
+│   │  Users │  │ Teams  │  │  Work   │  │  Outputs   │      │
+│   └────────┘  └────────┘  └────────┘  └────────────┘      │
+│                                                             │
+│   ┌────────┐  ┌────────┐  ┌────────┐                      │
+│   │Comments│  │Activity│  │Integr. │                      │
+│   └────────┘  └────────┘  └────────┘                      │
+└─────────────────────────────────────────────────────────────┘
+```
 
 ## Getting Started
 
-First, run the development server:
+### 1. Understand the Vision
+Read [Project Overview](../multi-agent-orchestration.md) to understand what Quark is and why it exists.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+### 2. Set Up the Project
+See [Technical Docs](QUARK.md) → Quick Start section.
+
+### 3. Configure Integrations
+- Set up Better Auth (magic link or OTP)
+- Configure MCP handler for AI agents
+- Add external integrations (GitHub, Calendars, etc.)
+
+### 4. Onboard Your Team
+Share [Agent Guidelines](Agents.md) with anyone connecting AI agents to Quark.
+
+### 5. Track Metrics
+Set up [KPIs](KPIs.md) dashboards for your team.
+
+## Key Concepts
+
+### Work Flow
+```
+NEW → TRIAGED → IN PROGRESS → AWAITING REVIEW → DONE
+                              ↓
+                         REVISION → AWAITING REVIEW
+                              ↓
+                         BLOCKED → IN PROGRESS
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### MCP Tools
+AI agents use MCP to:
+- Create work
+- List their assigned work
+- Submit completed work
+- Update work stages
+- Add comments
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Authentication
+All routes protected via proxy middleware. Users authenticate via Better Auth (magic link or OTP).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Support
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Discord: https://discord.gg/quark
+- Issues: GitHub issues

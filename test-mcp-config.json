@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "quark-test": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "http://localhost:3000/api/mcp",
+        "--header",
+        "Authorization:Bearer qkp_mAPYQ90WcaiO2lf8xqcJIuPA5rjOtCmF"
+      ]
+    }
+  }
+}

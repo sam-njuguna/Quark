@@ -1,0 +1,1 @@
+ALTER TABLE "team" ADD COLUMN "tool_policy" jsonb;

@@ -48,13 +48,13 @@ The second problem is AI output sprawl. Every chat with an AI generates walls of
 
 ## Competitive Landscape
 
-| Platform | What it does | Gap |
-|----------|--------------|-----|
-| **Linear + AI** | Task management with AI | One team, one AI, no agent-to-agent handoff |
-| **Notion AI** | AI inside docs | No protocol for agents talking across people |
-| **MultiOn, AutoGen, CrewAI** | Agent orchestration | Developer tools, no human-in-the-loop chat, no clean DB saving |
-| **Slack + AI bots** | Bot-based AI | Each bot isolated, no shared memory, no task ownership |
-| **Quark** | Human-first, chat-native workspace | Agents share DB via MCP, humans control what gets saved, approval-to-archive loop |
+| Platform                     | What it does                       | Gap                                                                               |
+| ---------------------------- | ---------------------------------- | --------------------------------------------------------------------------------- |
+| **Linear + AI**              | Task management with AI            | One team, one AI, no agent-to-agent handoff                                       |
+| **Notion AI**                | AI inside docs                     | No protocol for agents talking across people                                      |
+| **MultiOn, AutoGen, CrewAI** | Agent orchestration                | Developer tools, no human-in-the-loop chat, no clean DB saving                    |
+| **Slack + AI bots**          | Bot-based AI                       | Each bot isolated, no shared memory, no task ownership                            |
+| **Quark**                    | Human-first, chat-native workspace | Agents share DB via MCP, humans control what gets saved, approval-to-archive loop |
 
 **What nobody has built** — a human-first, chat-native workspace where each person has their own agent, agents share a DB through MCP, humans stay in control of what gets saved, and there's a clean approval-to-archive loop.
 
@@ -64,15 +64,15 @@ The second problem is AI output sprawl. Every chat with an AI generates walls of
 
 The work type is defined by the human via their AI/IDE. Whatever you can describe, your AI can push to Quark:
 
-| Work Type | Example |
-|-----------|---------|
-| **Tasks** | "Review this PR and push the findings to Quark" |
-| **Meetings** | "Check everyone's calendar availability and schedule this meeting" |
-| **Research** | "Gather info on X, pass it to Human B when done" |
-| **Code** | "Check if code was pushed to repo, if yes push summary to Quark" |
-| **Communications** | "Draft this email, push to Quark for my review" |
-| **Data** | "Run this query, summarize results in Quark" |
-| **Reviews** | "Review this document, push feedback to Quark" |
+| Work Type          | Example                                                            |
+| ------------------ | ------------------------------------------------------------------ |
+| **Tasks**          | "Review this PR and push the findings to Quark"                    |
+| **Meetings**       | "Check everyone's calendar availability and schedule this meeting" |
+| **Research**       | "Gather info on X, pass it to Human B when done"                   |
+| **Code**           | "Check if code was pushed to repo, if yes push summary to Quark"   |
+| **Communications** | "Draft this email, push to Quark for my review"                    |
+| **Data**           | "Run this query, summarize results in Quark"                       |
+| **Reviews**        | "Review this document, push feedback to Quark"                     |
 
 **The pattern:** Human tells their AI what to do → AI pushes result to Quark → Next human pulls, works, pushes back → Everyone sees history.
 
@@ -91,12 +91,12 @@ It's driven by **human intent**, expressed through their AI assistant.
 
 Not "AI works for humans." It's **humans collaborating through their AI assistants**, with Quark as the shared backbone.
 
-| Issue | What happens now | What Quark does |
-|-------|------------------|------------------|
-| Work lives everywhere | Tasks in Slack, Notion, Linear | Single DB for everything |
-| No visibility | "What's everyone working on?" | Dashboard shows assigned tasks |
-| Agent isolation | Agent can't access shared tasks | MCP connects IDE to DB |
-| Disconnected flow | Create here, work there, review elsewhere | One flow: IDE ↔ DB ↔ Dashboard |
+| Issue                 | What happens now                          | What Quark does                |
+| --------------------- | ----------------------------------------- | ------------------------------ |
+| Work lives everywhere | Tasks in Slack, Notion, Linear            | Single DB for everything       |
+| No visibility         | "What's everyone working on?"             | Dashboard shows assigned tasks |
+| Agent isolation       | Agent can't access shared tasks           | MCP connects IDE to DB         |
+| Disconnected flow     | Create here, work there, review elsewhere | One flow: IDE ↔ DB ↔ Dashboard |
 
 **Core insight:** Give AI agents a shared database to poll from. No need for them to know about each other.
 
@@ -108,12 +108,12 @@ Not "AI works for humans." It's **humans collaborating through their AI assistan
 
 **What each role sees:**
 
-| Role | Sees | Doesn't See |
-|------|------|-------------|
-| Task Creator | Tasks they created | Other user's private tasks |
+| Role          | Sees                   | Doesn't See                     |
+| ------------- | ---------------------- | ------------------------------- |
+| Task Creator  | Tasks they created     | Other user's private tasks      |
 | Assigned User | Tasks assigned to them | Team tasks not assigned to them |
-| Team Lead | All team tasks | Other team's tasks |
-| Agent | Tasks they can claim | Tasks already claimed by others |
+| Team Lead     | All team tasks         | Other team's tasks              |
+| Agent         | Tasks they can claim   | Tasks already claimed by others |
 
 **Key principle:** A user assigned to a task sees it in "My Tasks". They don't see other team tasks unless they're also assigned or the team lead.
 
@@ -128,45 +128,51 @@ Not "AI works for humans." It's **humans collaborating through their AI assistan
 
 ## Core Features
 
-| Feature | Description |
-|---------|-------------|
-| **IDE-First** | Work entirely from Windsurf, Cursor, Claude via MCP |
-| **Shared Inbox** | Single place for all delegated work |
-| **Visibility** | See only your work, team leads see team work |
-| **Race-Free** | Atomic claiming prevents duplicate work |
-| **Full History** | Every action tracked, who did what, when |
-| **Notifications** | Alerts at every step (email, in-app) |
-| **Multi-Work Types** | Tasks, meetings, research, code, documents... |
-| **Reassign** | Pass work to someone else at any stage |
-| **Block/Unblock** | Mark work as blocked with reason |
+| Feature              | Description                                         |
+| -------------------- | --------------------------------------------------- |
+| **IDE-First**        | Work entirely from Windsurf, Cursor, Claude via MCP |
+| **Shared Inbox**     | Single place for all delegated work                 |
+| **Visibility**       | See only your work, team leads see team work        |
+| **Race-Free**        | Atomic claiming prevents duplicate work             |
+| **Full History**     | Every action tracked, who did what, when            |
+| **Notifications**    | Alerts at every step (email, in-app)                |
+| **Multi-Work Types** | Tasks, meetings, research, code, documents...       |
+| **Reassign**         | Pass work to someone else at any stage              |
+| **Block/Unblock**    | Mark work as blocked with reason                    |
 
 ### Additional Features (Brainstorming)
 
 **Search & Filters:**
+
 - Search by title, type, assignee, creator
 - Filter by stage, priority, date range
 - Save filter presets
 
 **Bulk Actions:**
+
 - Select multiple items, move to stage
 - Assign to someone, change priority
 - Cancel multiple
 
 **Templates:**
+
 - Pre-defined work types with default fields
 - "Quick create" for common patterns
 
 **Recurring Work:**
+
 - Schedule daily/weekly/monthly tasks
 - AI creates new work from template automatically
 
 **Analytics (for team leads):**
+
 - Work throughput by stage
 - Average time in each stage
 - Who has too much/too little assigned
 - Blocked work count
 
 **Permissions:**
+
 - Member: See/own own work only
 - Lead: See all team work, reassign, manage
 - Admin: Manage team, integrations, settings
@@ -203,17 +209,17 @@ When creating work (via Dashboard or AI/MCP), what fields?
 
 **Fields explained:**
 
-| Field | Purpose |
-|-------|---------|
-| Title | Short name for the work |
-| Type | Categorizes work for filtering/analytics |
-| Description | Full details, links, background |
-| Assign | Specific person OR open for anyone |
-| Priority | P1 (urgent) to P3 (low) |
-| Due date | Optional deadline |
-| Tags | Additional categorization |
-| Context/Instructions | What the AI should do - this is key! |
-| Success criteria | How to know it's done (for auto-approval) |
+| Field                | Purpose                                   |
+| -------------------- | ----------------------------------------- |
+| Title                | Short name for the work                   |
+| Type                 | Categorizes work for filtering/analytics  |
+| Description          | Full details, links, background           |
+| Assign               | Specific person OR open for anyone        |
+| Priority             | P1 (urgent) to P3 (low)                   |
+| Due date             | Optional deadline                         |
+| Tags                 | Additional categorization                 |
+| Context/Instructions | What the AI should do - this is key!      |
+| Success criteria     | How to know it's done (for auto-approval) |
 
 **The "Context/Instructions" field is critical** - this is how humans tell their AI what to do. The more detail, the better the AI can execute.
 
@@ -272,14 +278,14 @@ Driven by what humans tell their AI to do via MCP:
 
 To enable the above, Quark needs to connect to external platforms:
 
-| Work Type | Integration Needed | What It Enables |
-|-----------|-------------------|-----------------|
-| **Meetings** | Google Calendar, Outlook, Cal.com API | Check availability, schedule meetings |
-| **Code** | GitHub, GitLab, Bitbucket API | Check pushes, trigger reviews, get PR status |
-| **Documents** | Google Docs, Notion, Confluence API | Read/write documents, track changes |
-| **Communication** | Slack, Discord, Email (SendGrid/Resend) | Send notifications, trigger alerts |
-| **Data** | Database connections, BI tools | Run queries, pull reports |
-| **Project Mgmt** | Linear, Asana, Jira API | Sync tasks, update status |
+| Work Type         | Integration Needed                      | What It Enables                              |
+| ----------------- | --------------------------------------- | -------------------------------------------- |
+| **Meetings**      | Google Calendar, Outlook, Cal.com API   | Check availability, schedule meetings        |
+| **Code**          | GitHub, GitLab, Bitbucket API           | Check pushes, trigger reviews, get PR status |
+| **Documents**     | Google Docs, Notion, Confluence API     | Read/write documents, track changes          |
+| **Communication** | Slack, Discord, Email (SendGrid/Resend) | Send notifications, trigger alerts           |
+| **Data**          | Database connections, BI tools          | Run queries, pull reports                    |
+| **Project Mgmt**  | Linear, Asana, Jira API                 | Sync tasks, update status                    |
 
 **The pattern:** Human tells AI → AI calls external API → Result pushed to Quark → Next human reviews.
 
@@ -353,18 +359,19 @@ To enable the above, Quark needs to connect to external platforms:
 
 ### Notifications
 
-| Trigger | Who gets notified | Channel |
-|---------|-------------------|---------|
-| Work created (assigned to you) | Assignee | Email + in-app |
-| Work submitted for review | Creator | Email + in-app |
-| Revision requested | Assignee | Email + in-app |
-| Work approved | Creator + Assignee | Email |
-| Work blocked | Creator | In-app |
-| Work reassigned | New assignee | Email + in-app |
-| Work cancelled | Creator | In-app |
-| @Mention in comment | Mentioned user | Email + in-app |
+| Trigger                        | Who gets notified  | Channel        |
+| ------------------------------ | ------------------ | -------------- |
+| Work created (assigned to you) | Assignee           | Email + in-app |
+| Work submitted for review      | Creator            | Email + in-app |
+| Revision requested             | Assignee           | Email + in-app |
+| Work approved                  | Creator + Assignee | Email          |
+| Work blocked                   | Creator            | In-app         |
+| Work reassigned                | New assignee       | Email + in-app |
+| Work cancelled                 | Creator            | In-app         |
+| @Mention in comment            | Mentioned user     | Email + in-app |
 
 **User preferences:**
+
 - Choose notification channels per event type
 - Daily digest option instead of instant
 - Mute notifications for specific work
@@ -440,6 +447,7 @@ To enable the above, Quark needs to connect to external platforms:
 ```
 
 **Ideas:**
+
 - Users belong to teams
 - Teams have leads and members
 - Cross-team work sharing (Team A can assign to Team B)
@@ -452,11 +460,13 @@ To enable the above, Quark needs to connect to external platforms:
 For external integrations:
 
 **Quark exposes:**
+
 - REST API for CRUD operations
 - Webhooks for events (work created, stage changed, etc.)
 - MCP for AI/IDE integration
 
 **Webhook events:**
+
 - `work.created`
 - `work.stage_changed`
 - `work.assigned`

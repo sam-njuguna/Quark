@@ -1,0 +1,16 @@
+{
+  "env": {
+    "ANTHROPIC_BASE_URL": "https://openrouter.ai/api",
+    "ANTHROPIC_AUTH_TOKEN": "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",
+    "ANTHROPIC_API_KEY": "",
+    "ANTHROPIC_MODEL": "z-ai/glm-5"
+  },
+  "glm": {
+    "env": {
+      "ANTHROPIC_AUTH_TOKEN": "your_zai_api_key",
+      "ANTHROPIC_BASE_URL": "https://api.z.ai/api/anthropic",
+      "API_TIMEOUT_MS": "3000000",
+      "ANTHROPIC_MODEL": "z-ai/glm-5"
+    }
+  }
+}

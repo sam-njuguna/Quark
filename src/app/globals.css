@@ -48,72 +48,74 @@
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  /* Warm near-white base, violet-tinted neutrals (hue 285 = violet-indigo) */
+  --background: oklch(0.99 0.004 285);
+  --foreground: oklch(0.155 0.022 285);
+  --card: oklch(0.998 0.002 285);
+  --card-foreground: oklch(0.155 0.022 285);
+  --popover: oklch(0.998 0.002 285);
+  --popover-foreground: oklch(0.155 0.022 285);
+  --primary: oklch(0.42 0.2 285);
+  --primary-foreground: oklch(0.99 0.002 285);
+  --secondary: oklch(0.955 0.008 285);
+  --secondary-foreground: oklch(0.42 0.2 285);
+  --muted: oklch(0.96 0.006 285);
+  --muted-foreground: oklch(0.5 0.04 285);
+  --accent: oklch(0.955 0.008 285);
+  --accent-foreground: oklch(0.42 0.2 285);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.809 0.105 251.813);
-  --chart-2: oklch(0.623 0.214 259.815);
-  --chart-3: oklch(0.546 0.245 262.881);
-  --chart-4: oklch(0.488 0.243 264.376);
-  --chart-5: oklch(0.424 0.199 265.638);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --border: oklch(0.885 0.01 285);
+  --input: oklch(0.885 0.01 285);
+  --ring: oklch(0.52 0.15 285);
+  --chart-1: oklch(0.55 0.22 285);
+  --chart-2: oklch(0.7 0.14 180);
+  --chart-3: oklch(0.62 0.18 142);
+  --chart-4: oklch(0.72 0.17 50);
+  --chart-5: oklch(0.6 0.22 25);
+  --radius: 0.4rem;
+  --sidebar: oklch(0.975 0.005 285);
+  --sidebar-foreground: oklch(0.155 0.022 285);
+  --sidebar-primary: oklch(0.42 0.2 285);
+  --sidebar-primary-foreground: oklch(0.99 0.002 285);
+  --sidebar-accent: oklch(0.95 0.008 285);
+  --sidebar-accent-foreground: oklch(0.155 0.022 285);
+  --sidebar-border: oklch(0.88 0.01 285);
+  --sidebar-ring: oklch(0.52 0.15 285);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.809 0.105 251.813);
-  --chart-2: oklch(0.623 0.214 259.815);
-  --chart-3: oklch(0.546 0.245 262.881);
-  --chart-4: oklch(0.488 0.243 264.376);
-  --chart-5: oklch(0.424 0.199 265.638);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  /* Warm charcoal base — not cold blue-black */
+  --background: oklch(0.138 0.016 285);
+  --foreground: oklch(0.962 0.006 285);
+  --card: oklch(0.178 0.016 285);
+  --card-foreground: oklch(0.962 0.006 285);
+  --popover: oklch(0.178 0.016 285);
+  --popover-foreground: oklch(0.962 0.006 285);
+  --primary: oklch(0.7 0.2 285);
+  --primary-foreground: oklch(0.138 0.016 285);
+  --secondary: oklch(0.238 0.016 285);
+  --secondary-foreground: oklch(0.962 0.006 285);
+  --muted: oklch(0.228 0.014 285);
+  --muted-foreground: oklch(0.618 0.04 285);
+  --accent: oklch(0.238 0.016 285);
+  --accent-foreground: oklch(0.962 0.006 285);
+  --destructive: oklch(0.65 0.2 22.216);
+  --border: oklch(1 0 0 / 8%);
+  --input: oklch(1 0 0 / 11%);
+  --ring: oklch(0.52 0.15 285);
+  --chart-1: oklch(0.7 0.2 285);
+  --chart-2: oklch(0.72 0.14 180);
+  --chart-3: oklch(0.64 0.18 142);
+  --chart-4: oklch(0.72 0.17 50);
+  --chart-5: oklch(0.62 0.22 25);
+  --sidebar: oklch(0.155 0.016 285);
+  --sidebar-foreground: oklch(0.962 0.006 285);
+  --sidebar-primary: oklch(0.7 0.2 285);
+  --sidebar-primary-foreground: oklch(0.138 0.016 285);
+  --sidebar-accent: oklch(0.222 0.016 285);
+  --sidebar-accent-foreground: oklch(0.962 0.006 285);
+  --sidebar-border: oklch(1 0 0 / 8%);
+  --sidebar-ring: oklch(0.52 0.15 285);
 }
 
 @layer base {
@@ -122,8 +124,180 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-feature-settings:
+      "rlig" 1,
+      "calt" 1,
+      "ss01" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
   html {
     @apply font-sans;
   }
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display, var(--font-sans));
+    letter-spacing: -0.02em;
+  }
+  h1 {
+    @apply text-2xl font-semibold;
+  }
+  h2 {
+    @apply text-lg font-semibold;
+  }
+  h3 {
+    @apply text-sm font-semibold;
+  }
+}
+
+/* ── Animation polish: page transitions & micro-interactions ───────── */
+@layer utilities {
+  .animate-fade-in {
+    animation: fade-in 0.18s ease-out both;
+  }
+  .animate-slide-up {
+    animation: slide-up 0.22s ease-out both;
+  }
+  .animate-scale-in {
+    animation: scale-in 0.16s ease-out both;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ── Mobile-responsive helpers ─────────────────────────────────────── */
+@layer utilities {
+  /* Full-width button on small screens */
+  .btn-responsive {
+    @apply w-full sm:w-auto;
+  }
+  /* Hide on mobile, show on sm+ */
+  .show-sm {
+    @apply hidden sm:block;
+  }
+  /* Stack columns on mobile */
+  .cols-mobile-stack {
+    @apply grid-cols-1 sm:grid-cols-2;
+  }
+  /* Compact padding on mobile */
+  .px-page {
+    @apply px-4 sm:px-6;
+  }
+  /* Truncate long text safely */
+  .text-truncate {
+    @apply truncate min-w-0;
+  }
+}
+
+/* ── Smooth transitions on interactive elements ─────────────────────── */
+@layer base {
+  a,
+  button {
+    transition-property:
+      color, background-color, border-color, opacity, box-shadow, transform;
+    transition-duration: 150ms;
+    transition-timing-function: ease;
+  }
+  /* Reduce motion for users who prefer it */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* ── Custom Scrollbar ────────────────────────────────────────────────── */
+.scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--muted-foreground) transparent;
+}
+
+.scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 4px;
+}
+
+.scrollbar::-webkit-scrollbar-thumb {
+  background: var(--muted-foreground);
+  border-radius: 4px;
+  opacity: 0.5;
+}
+
+.scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--foreground);
+  opacity: 0.8;
+}
+
+.scrollbar::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Thin scrollbar variant */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 2px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
+}
+
+/* Hide scrollbar but keep functionality */
+.scrollbar-hidden {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
 }

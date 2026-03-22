@@ -1,0 +1,1 @@
+ALTER TABLE "api_key" ADD COLUMN "disabled_tools" jsonb DEFAULT '[]'::jsonb;

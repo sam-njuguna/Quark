@@ -14,8 +14,6 @@ import { addComment } from "@/actions/comments/add";
 import { getWork } from "@/actions/work/get";
 import { getMyRoleInAnyTeam } from "@/actions/team/role";
 import { getSystemRole } from "@/actions/auth/session";
-import { getTeamMemberWorkloads } from "@/actions/work/analytics";
-import { assignWork } from "@/actions/work/assign";
 import { getTeamMembers } from "@/actions/team/members";
 import { useRouter } from "next/navigation";
 import {
@@ -134,17 +132,6 @@ export function KanbanCardWithDetail({
     }
   };
 
-  const handleStartWork = async (workId: string) => {
-    try {
-      const nextStage = item.stage === "new" ? "triaged" : "in_progress";
-      await updateStage(workId, nextStage);
-      toast.success(nextStage === "triaged" ? "Work triaged" : "Work started");
-      router.refresh();
-    } catch {
-      toast.error("Failed to update stage");
-    }
-  };
-
   const handleApprove = async (workId: string) => {
     try {
       await approveWork(workId);
@@ -183,28 +170,6 @@ export function KanbanCardWithDetail({
       toast.success("Comment added");
     } catch {
       toast.error("Failed to add comment");
-    }
-  };
-
-  const handleAutoAssign = async (workId: string) => {
-    try {
-      if (!item.teamId) {
-        toast.error("Work has no team");
-        return;
-      }
-      const workloads = await getTeamMemberWorkloads(item.teamId);
-      if (!workloads.length) {
-        toast.error("No team members found");
-        return;
-      }
-      const lightest = workloads.reduce((a, b) =>
-        a.active <= b.active ? a : b,
-      );
-      await assignWork(workId, lightest.userId);
-      toast.success(`Auto-assigned to ${lightest.name}`);
-      router.refresh();
-    } catch {
-      toast.error("Auto-assign failed");
     }
   };
 
@@ -286,29 +251,21 @@ export function KanbanCardWithDetail({
             <MessageSquareIcon className="size-3.5" />
             View Details
           </ContextMenuItem>
-          <ContextMenuItem
-            onClick={() => handleAutoAssign(item.id)}
-            className="gap-2"
-          >
-            <UserPlusIcon className="size-3.5" />
-            Auto-assign
-          </ContextMenuItem>
         </ContextMenuContent>
       </ContextMenu>
       <WorkDetailSheet
         work={workDetail as Parameters<typeof WorkDetailSheet>[0]["work"]}
         open={open}
         onOpenChange={setOpen}
-        onStartWork={handleStartWork}
         onApprove={handleApprove}
         onReject={handleReject}
         onBlock={handleBlock}
         onAddComment={handleAddComment}
-        onAutoAssign={handleAutoAssign}
         currentUserRole={currentUserRole}
         currentUserId={currentUserId}
         systemRole={systemRole ?? undefined}
         availableUsers={availableUsers}
+        aiAgentInfo={workDetail.aiAgentInfo as any}
       />
     </>
   );

@@ -387,3 +387,59 @@ export async function mcpListComments(
     .orderBy(desc(comment.createdAt))
     .limit(limit);
 }
+
+export async function mcpSuggestNextSteps(user: McpUser, workId: string) {
+  const { suggestNextSteps } = await import("@/lib/ai-triage");
+  const steps = await suggestNextSteps(workId);
+  return { workId, steps };
+}
+
+export async function mcpAutoTriage(user: McpUser, workId: string) {
+  const { analyzeWork } = await import("@/lib/ai-triage");
+  const workItem = await db.query.work.findFirst({
+    where: eq(work.id, workId),
+  });
+  if (!workItem) return { error: "Work not found" };
+  
+  const analysis = await analyzeWork(workItem.title, workItem.description, workItem.type);
+  return {
+    workId,
+    suggestedPriority: analysis.suggestedPriority,
+    suggestedType: analysis.suggestedType,
+    suggestedStage: analysis.suggestedStage,
+    confidence: analysis.confidence,
+    reasoning: analysis.reasoning,
+  };
+}
+
+export async function mcpSummarizeWork(user: McpUser, workId: string) {
+  const workItem = await db.query.work.findFirst({
+    where: eq(work.id, workId),
+  });
+  if (!workItem) return { error: "Work not found" };
+  
+  const comments = await db
+    .select()
+    .from(comment)
+    .where(eq(comment.workId, workId))
+    .orderBy(desc(comment.createdAt))
+    .limit(10);
+  
+  return {
+    id: workItem.id,
+    title: workItem.title,
+    type: workItem.type,
+    stage: workItem.stage,
+    description: workItem.description,
+    priority: workItem.priority,
+    createdAt: workItem.createdAt,
+    commentCount: comments.length,
+    recentComments: comments.map(c => ({ author: c.authorId, content: c.content, createdAt: c.createdAt })),
+  };
+}
+
+export async function mcpFindRelatedWork(user: McpUser, workId: string) {
+  const { findSimilarWork } = await import("@/lib/embeddings");
+  const related = await findSimilarWork(workId, "", 5);
+  return { workId, related };
+}

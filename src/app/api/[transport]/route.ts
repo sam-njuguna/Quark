@@ -312,6 +312,58 @@ const handler = createMcpHandler(
         mcp.mcpListWork(user, { stage: "awaiting_review" }),
       ),
     );
+
+    server.registerTool(
+      "suggest_next_steps",
+      {
+        title: "Suggest Next Steps",
+        description:
+          "Get AI-suggested next steps for a work item based on its title, description, and type.",
+        inputSchema: workIdInput,
+      },
+      makeTool("suggest_next_steps", async (user, { workId }) => {
+        return mcp.mcpSuggestNextSteps(user, workId);
+      }),
+    );
+
+    server.registerTool(
+      "auto_triage",
+      {
+        title: "Auto Triage Work",
+        description:
+          "Automatically analyze and suggest priority, type, and stage for a work item based on its content.",
+        inputSchema: workIdInput,
+      },
+      makeTool("auto_triage", async (user, { workId }) => {
+        return mcp.mcpAutoTriage(user, workId);
+      }),
+    );
+
+    server.registerTool(
+      "summarize_work",
+      {
+        title: "Summarize Work",
+        description:
+          "Get an AI-generated summary of a work item including its title, description, and recent activity.",
+        inputSchema: workIdInput,
+      },
+      makeTool("summarize_work", async (user, { workId }) => {
+        return mcp.mcpSummarizeWork(user, workId);
+      }),
+    );
+
+    server.registerTool(
+      "find_related_work",
+      {
+        title: "Find Related Work",
+        description:
+          "Find work items related to a given work item based on semantic similarity.",
+        inputSchema: workIdInput,
+      },
+      makeTool("find_related_work", async (user, { workId }) => {
+        return mcp.mcpFindRelatedWork(user, workId);
+      }),
+    );
   },
   {
     serverInfo: { name: "quark-mcp", version: "1.0.0" },

@@ -131,6 +131,14 @@ export async function listAllTeamsWork(
       githubIssueUrl: work.githubIssueUrl,
       meetingUrl: work.meetingUrl,
       successCriteria: work.successCriteria,
+      embedding: work.embedding,
+      aiAgentId: work.aiAgentId,
+      aiStatus: work.aiStatus,
+      aiCustomInstructions: work.aiCustomInstructions,
+      aiStartedAt: work.aiStartedAt,
+      aiCompletedAt: work.aiCompletedAt,
+      aiError: work.aiError,
+      aiProgress: work.aiProgress,
     })
     .from(work)
     .leftJoin(team, eq(work.teamId, team.id))
@@ -226,6 +234,14 @@ export async function listAccessibleWork(
       githubIssueUrl: work.githubIssueUrl,
       meetingUrl: work.meetingUrl,
       successCriteria: work.successCriteria,
+      embedding: work.embedding,
+      aiAgentId: work.aiAgentId,
+      aiStatus: work.aiStatus,
+      aiCustomInstructions: work.aiCustomInstructions,
+      aiStartedAt: work.aiStartedAt,
+      aiCompletedAt: work.aiCompletedAt,
+      aiError: work.aiError,
+      aiProgress: work.aiProgress,
     })
     .from(work)
     .leftJoin(team, eq(work.teamId, team.id))

@@ -4,6 +4,17 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { addComment } from "@/actions/comments/add";
 import { approveWork } from "@/actions/work/approve";
@@ -12,6 +23,8 @@ import { blockWork } from "@/actions/work/block";
 import { updateStage } from "@/actions/work/update-stage";
 import { cloneWork } from "@/actions/work/clone";
 import { deleteWork } from "@/actions/work/delete";
+import { triggerAIExecution } from "@/actions/work/ai-execute";
+import { assignWorkToAgent, cancelAIExecution } from "@/actions/work/assign-agent";
 import type { Work } from "@/db/schema/work";
 import {
   SendIcon,
@@ -122,6 +135,35 @@ export function WorkDetailActions({
     });
   };
 
+  const canAssignToAgent = !work.aiStatus || work.aiStatus === "completed" || work.aiStatus === "failed" || work.aiStatus === "cancelled";
+  const isRunningAI = work.aiStatus === "running";
+  const isAssignedToAgent = work.aiStatus === "assigned";
+
+  const handleAssignToAgent = () => {
+    if (!canAssignToAgent) return;
+    startTransition(async () => {
+      try {
+        await assignWorkToAgent(workId);
+        toast.success("Assigned to AI Agent");
+        router.refresh();
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : "Failed to assign");
+      }
+    });
+  };
+
+  const handleCancelAI = () => {
+    startTransition(async () => {
+      try {
+        await cancelAIExecution(workId);
+        toast.success("AI execution cancelled");
+        router.refresh();
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : "Failed to cancel");
+      }
+    });
+  };
+
   const handleClone = () => {
     startTransition(async () => {
       try {
@@ -135,7 +177,6 @@ export function WorkDetailActions({
   };
 
   const handleDelete = () => {
-    if (!confirm("Delete this work item? This cannot be undone.")) return;
     startTransition(async () => {
       try {
         await deleteWork(workId);
@@ -143,6 +184,18 @@ export function WorkDetailActions({
         router.push("/dashboard/all");
       } catch (e) {
         toast.error(e instanceof Error ? e.message : "Failed to delete work");
+      }
+    });
+  };
+
+  const handleRunAI = () => {
+    startTransition(async () => {
+      try {
+        await triggerAIExecution(workId);
+        toast.success("AI execution started");
+        router.refresh();
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : "Failed to run AI");
       }
     });
   };
@@ -191,6 +244,30 @@ export function WorkDetailActions({
             >
               <AlertTriangleIcon className="mr-2 size-3.5" />
               Mark Blocked
+            </Button>
+          )}
+
+          {canAssignToAgent && (
+            <Button
+              onClick={handleAssignToAgent}
+              disabled={isPending}
+              size="sm"
+              variant="default"
+            >
+              <PlayIcon className="mr-2 size-3.5" />
+              Assign to AI Agent
+            </Button>
+          )}
+
+          {isRunningAI && (
+            <Button
+              onClick={handleCancelAI}
+              disabled={isPending}
+              size="sm"
+              variant="destructive"
+            >
+              <XCircleIcon className="mr-2 size-3.5" />
+              Cancel AI
             </Button>
           )}
         </div>
@@ -307,15 +384,45 @@ export function WorkDetailActions({
               Clone
             </Button>
             <Button
-              onClick={handleDelete}
-              disabled={isPending}
+              onClick={handleRunAI}
+              disabled={isPending || !work.aiAgentId || work.aiStatus === "running"}
               size="sm"
               variant="ghost"
-              className="text-destructive hover:text-destructive"
+              className="text-blue-600 hover:text-blue-700"
             >
-              <Trash2Icon className="mr-2 size-3.5" />
-              Delete
+              <PlayIcon className="mr-2 size-3.5" />
+              Run AI
             </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  disabled={isPending}
+                  size="sm"
+                  variant="ghost"
+                  className="text-destructive hover:text-destructive"
+                >
+                  <Trash2Icon className="mr-2 size-3.5" />
+                  Delete
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete this work item?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. The work item will be permanently deleted.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleDelete}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    Delete
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </div>
       </div>

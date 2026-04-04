@@ -6,6 +6,7 @@ import { work } from "@/db/schema/work";
 import { requireUser, getUserTeams } from "@/actions/auth/session";
 import { eq, and, lt, lte } from "drizzle-orm";
 import { nanoid } from "nanoid";
+import { analyzeWork, suggestNextSteps } from "@/lib/ai-triage";
 
 export async function listAutomations(teamId: string) {
   await requireUser();
@@ -85,4 +86,33 @@ export async function predictPriority(title: string, description?: string): Prom
   if (highKeywords.some((k) => text.includes(k))) return 1;
   if (lowKeywords.some((k) => text.includes(k))) return 3;
   return 2;
+}
+
+export async function aiPredictPriority(title: string, description?: string): Promise<{ priority: number; confidence: number; reasoning: string }> {
+  const analysis = await analyzeWork(title, description ?? null);
+  return {
+    priority: analysis.suggestedPriority,
+    confidence: analysis.confidence,
+    reasoning: analysis.reasoning,
+  };
+}
+
+export async function aiSuggestType(title: string, description?: string): Promise<{ type: string; confidence: number }> {
+  const analysis = await analyzeWork(title, description ?? null);
+  return {
+    type: analysis.suggestedType,
+    confidence: analysis.confidence,
+  };
+}
+
+export async function aiSuggestStage(title: string, description?: string): Promise<{ stage: string; confidence: number }> {
+  const analysis = await analyzeWork(title, description ?? null);
+  return {
+    stage: analysis.suggestedStage,
+    confidence: analysis.confidence,
+  };
+}
+
+export async function aiGetNextSteps(workId: string): Promise<string[]> {
+  return suggestNextSteps(workId);
 }

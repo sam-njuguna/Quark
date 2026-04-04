@@ -5,6 +5,7 @@ import { work, workOutput } from "@/db/schema/work";
 import { comment } from "@/db/schema/comments";
 import { activity } from "@/db/schema/activity";
 import { user as userTable } from "@/db/schema/auth-schema";
+import { agent } from "@/db/schema/agent";
 import { requireUser } from "@/actions/auth/session";
 import { eq, desc, gt, and } from "drizzle-orm";
 
@@ -72,10 +73,28 @@ export async function getWork(workId: string) {
     .orderBy(desc(activity.createdAt))
     .limit(5);
 
+  // Get AI agent info if assigned
+  let aiAgentInfo = null;
+  if (workItem.aiAgentId) {
+    const [aiAgent] = await db
+      .select({
+        id: agent.id,
+        name: agent.name,
+        agentType: agent.agentType,
+      })
+      .from(agent)
+      .where(eq(agent.id, workItem.aiAgentId))
+      .limit(1);
+    if (aiAgent) {
+      aiAgentInfo = aiAgent;
+    }
+  }
+
   return {
     ...workItem,
     outputs,
     comments,
     recentViewers: recentActivity,
+    aiAgentInfo,
   };
 }

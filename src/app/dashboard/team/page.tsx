@@ -8,6 +8,7 @@ import {
 import { getTeamSprints, getSprintBurndown } from "@/actions/sprints";
 import { KanbanBoard } from "@/components/kanban/kanban-board";
 import { SprintManager } from "@/components/sprints/sprint-manager";
+import { AgentList } from "@/components/agents/agent-list";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -135,7 +136,7 @@ export default async function TeamPage() {
         <Button asChild size="sm">
           <Link href="/dashboard/new">
             <CirclePlus className="size-3.5" />
-            Assign Work
+            Create Work
           </Link>
         </Button>
       </div>
@@ -329,31 +330,33 @@ export default async function TeamPage() {
 
       <Separator />
 
-      {/* Kanban */}
-      <div className="space-y-4">
-        <h2 className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50">
-          Board
-        </h2>
-        {workItems.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-12 text-center">
-            <CheckCircle2Icon className="size-8 text-muted-foreground mb-4" />
-            <h3 className="text-base font-semibold">No active work</h3>
-            <p className="mt-1 text-sm text-muted-foreground max-w-xs">
-              Assign work to your team to see it on the board.
-            </p>
-            <Button className="mt-4" asChild>
-              <Link href="/dashboard/new">Create team work</Link>
-            </Button>
-          </div>
-        ) : (
-          <KanbanBoard
-            workItems={workItems}
-            teamId={currentTeam.id}
-            currentUserId={session!.user!.id}
-            currentUserName={session!.user!.name ?? session!.user!.email ?? ""}
-          />
-        )}
+        {/* Kanban */}
+        <div className="space-y-4">
+          <h2 className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50">
+            Board
+          </h2>
+          {workItems.length === 0 ? (
+            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-12 text-center">
+              <CheckCircle2Icon className="size-8 text-muted-foreground mb-4" />
+              <h3 className="text-base font-semibold">No active work</h3>
+              <p className="mt-1 text-sm text-muted-foreground max-w-xs">
+                Assign work to your team to see it on the board.
+              </p>
+              <Button className="mt-4" asChild>
+                <Link href="/dashboard/new">Create team work</Link>
+              </Button>
+            </div>
+          ) : (
+            <KanbanBoard
+              workItems={workItems}
+              teamId={currentTeam.id}
+              currentUserId={session!.user!.id}
+              currentUserName={session!.user!.name ?? session!.user!.email ?? ""}
+            />
+          )}
+        </div>
+
+        <AgentList teamId={currentTeam.id} />
       </div>
-    </div>
-  );
-}
+    );
+  }

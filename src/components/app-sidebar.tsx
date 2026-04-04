@@ -29,7 +29,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
-  InboxIcon,
   LayoutGridIcon,
   Users,
   Settings2,
@@ -37,13 +36,9 @@ import {
   LogOutIcon,
   CirclePlus,
   ZapIcon,
-  ShieldCheckIcon,
-  ClockIcon,
   PlugIcon,
-  TrendingUpIcon,
-  NetworkIcon,
-  MoonIcon,
   CalendarIcon,
+  MoonIcon,
 } from "lucide-react";
 import { useSidebar } from "@/components/ui/sidebar";
 import { ChevronsUpDownIcon } from "lucide-react";
@@ -92,11 +87,6 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
 
 const MEMBER_NAV: NavItem[] = [
   {
-    title: "My Work",
-    url: "/dashboard",
-    icon: <InboxIcon className="size-4" />,
-  },
-  {
     title: "All Work",
     url: "/dashboard/all",
     icon: <LayoutGridIcon className="size-4" />,
@@ -110,16 +100,16 @@ const MEMBER_NAV: NavItem[] = [
     title: "Calendar",
     url: "/dashboard/calendar",
     icon: <CalendarIcon className="size-4" />,
+  },
+  {
+    title: "AI Activity",
+    url: "/dashboard/analytics",
+    icon: <ZapIcon className="size-4" />,
   },
 ];
 
 const PRIVILEGED_NAV: NavItem[] = [
   {
-    title: "My Work",
-    url: "/dashboard",
-    icon: <InboxIcon className="size-4" />,
-  },
-  {
     title: "All Work",
     url: "/dashboard/all",
     icon: <LayoutGridIcon className="size-4" />,
@@ -135,9 +125,9 @@ const PRIVILEGED_NAV: NavItem[] = [
     icon: <CalendarIcon className="size-4" />,
   },
   {
-    title: "Hierarchy",
-    url: "/dashboard/hierarchy",
-    icon: <NetworkIcon className="size-4" />,
+    title: "AI Activity",
+    url: "/dashboard/analytics",
+    icon: <ZapIcon className="size-4" />,
   },
 ];
 
@@ -148,19 +138,9 @@ const UTILITY_NAV: NavItem[] = [
     icon: <CirclePlus className="size-4" />,
   },
   {
-    title: "My Analytics",
-    url: "/dashboard/analytics",
-    icon: <TrendingUpIcon className="size-4" />,
-  },
-  {
     title: "Integrations",
     url: "/dashboard/integrations",
     icon: <PlugIcon className="size-4" />,
-  },
-  {
-    title: "Audit Trail",
-    url: "/dashboard/audit",
-    icon: <ClockIcon className="size-4" />,
   },
   {
     title: "Settings",
@@ -485,9 +465,9 @@ export function AppSidebar({
             label="Admin"
             items={[
               {
-                title: "Admin Dashboard",
-                url: "/dashboard/admin",
-                icon: <ShieldCheckIcon className="size-4" />,
+                title: "Team Settings",
+                url: "/dashboard/settings",
+                icon: <Settings2 className="size-4" />,
               },
             ]}
           />

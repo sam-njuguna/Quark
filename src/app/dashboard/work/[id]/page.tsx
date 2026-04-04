@@ -12,6 +12,9 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { WorkDetailActions } from "@/components/work/work-detail-actions";
 import { CopyLinkButton } from "@/components/work/copy-link-button";
+import { FindSimilarWork } from "@/components/work/find-similar-work";
+import { MarkdownPreview } from "@/components/ui/markdown-preview";
+import { AIProgressViewer } from "@/components/ai/ai-progress-viewer";
 import {
   ArrowLeftIcon,
   CalendarIcon,
@@ -27,6 +30,7 @@ import {
   VideoIcon,
   GitBranchIcon,
   GithubIcon,
+  SparklesIcon,
 } from "lucide-react";
 
 const typeColors: Record<string, string> = {
@@ -195,9 +199,9 @@ export default async function WorkDetailPage({ params }: WorkPageProps) {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-                  {workData.description}
-                </p>
+                <div className="text-sm text-muted-foreground">
+                  <MarkdownPreview content={workData.description} />
+                </div>
               </CardContent>
             </Card>
           )}
@@ -353,23 +357,38 @@ export default async function WorkDetailPage({ params }: WorkPageProps) {
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center gap-2 text-sm font-medium">
                   <FileTextIcon className="size-4" />
-                  Submitted Output
+                  AI Output
                   <span className="ml-auto text-xs text-muted-foreground font-normal">
                     v{workData.outputs[0].version}
                   </span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="rounded-lg border bg-muted/30 p-4 text-sm">
-                  <pre className="whitespace-pre-wrap font-mono text-xs text-foreground overflow-x-auto">
-                    {typeof workData.outputs[0].content === "object" &&
-                    "text" in workData.outputs[0].content
-                      ? String(workData.outputs[0].content.text)
-                      : JSON.stringify(workData.outputs[0].content, null, 2)}
-                  </pre>
+                <div className="rounded-lg border bg-muted/30 p-4 max-h-80 overflow-y-auto">
+                  <MarkdownPreview
+                    content={
+                      typeof workData.outputs[0].content === "object" &&
+                      "markdown" in workData.outputs[0].content
+                        ? String(workData.outputs[0].content.markdown)
+                        : typeof workData.outputs[0].content === "object" &&
+                          "text" in workData.outputs[0].content
+                        ? String(workData.outputs[0].content.text)
+                        : JSON.stringify(workData.outputs[0].content, null, 2)
+                    }
+                  />
                 </div>
               </CardContent>
             </Card>
+          )}
+
+          {/* AI Progress */}
+          {(workData.aiStatus || workData.aiProgress) && (
+            <AIProgressViewer
+              workId={workData.id}
+              aiProgress={workData.aiProgress as any}
+              currentStage={workData.stage || "new"}
+              aiStatus={workData.aiStatus || undefined}
+            />
           )}
 
           {/* Attachments */}
@@ -494,6 +513,43 @@ export default async function WorkDetailPage({ params }: WorkPageProps) {
                     </Badge>
                   ),
                 },
+                ...(workData.aiStatus
+                  ? [
+                      {
+                        label: "AI Status",
+                        value: (
+                          <span
+                            className={`text-xs font-semibold px-1.5 py-0.5 rounded ${
+                              workData.aiStatus === "completed"
+                                ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300"
+                                : workData.aiStatus === "running"
+                                ? "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 animate-pulse"
+                                : workData.aiStatus === "assigned"
+                                ? "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300"
+                                : workData.aiStatus === "failed"
+                                ? "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300"
+                                : "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
+                            }`}
+                          >
+                            {workData.aiStatus === "running" ? "Running..." : 
+                             workData.aiStatus === "assigned" ? "Assigned" : workData.aiStatus}
+                          </span>
+                        ),
+                      },
+                    ]
+                  : []),
+                ...(workData.aiAgentInfo
+                  ? [
+                      {
+                        label: "Assigned To",
+                        value: (
+                          <span className="text-xs font-semibold px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300">
+                            🤖 {workData.aiAgentInfo.name}
+                          </span>
+                        ),
+                      },
+                    ]
+                  : []),
                 ...(workData.dueDate
                   ? [
                       {
@@ -618,6 +674,31 @@ export default async function WorkDetailPage({ params }: WorkPageProps) {
               </Button>
             </div>
           </div>
+
+          <FindSimilarWork workId={id} />
+
+          {workData.aiAgentId && (
+            <div className="rounded-md border bg-card overflow-hidden">
+              <div className="px-4 py-2.5 border-b bg-muted/20">
+                <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50">
+                  AI Agent
+                </p>
+              </div>
+              <div className="px-4 py-3 space-y-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full gap-1.5"
+                  asChild
+                >
+                  <Link href={`/dashboard/work/${id}/ai-output`}>
+                    <SparklesIcon className="size-3" />
+                    View AI Output
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

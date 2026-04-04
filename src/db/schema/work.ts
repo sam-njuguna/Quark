@@ -9,6 +9,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { user } from "./auth-schema";
 import { team } from "./teams";
+import { agent } from "./agent";
 
 export type Work = typeof work.$inferSelect;
 export type WorkOutput = typeof workOutput.$inferSelect;
@@ -69,6 +70,23 @@ export const work = pgTable(
     meetingUrl: text("meeting_url"),
     githubRepo: text("github_repo"),
     githubIssueUrl: text("github_issue_url"),
+
+    // AI / Semantic Search
+    embedding: text("embedding"), // pgvector embedding stored as JSON string
+    
+    // AI Execution
+    aiAgentId: text("ai_agent_id").references(() => agent.id, { onDelete: "set null" }),
+    aiStatus: text("ai_status"), // pending, running, completed, failed
+    aiCustomInstructions: text("ai_custom_instructions"),
+    aiStartedAt: timestamp("ai_started_at"),
+    aiCompletedAt: timestamp("ai_completed_at"),
+    aiError: text("ai_error"),
+    aiProgress: jsonb("ai_progress").$type<{
+      triaged?: { content: string; timestamp: string };
+      in_progress?: { content: string; timestamp: string };
+      awaiting_review?: { content: string; timestamp: string };
+      done?: { content: string; timestamp: string };
+    }>(),
 
     // Timestamps
     createdAt: timestamp("created_at").defaultNow().notNull(),

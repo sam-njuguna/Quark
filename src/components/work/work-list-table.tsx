@@ -409,11 +409,6 @@ export function WorkListTable({
           onOpenChange={(o) => {
             if (!o) setOpenId(null);
           }}
-          onStartWork={async (id) => {
-            const stage = openItem.stage === "new" ? "triaged" : "in_progress";
-            await updateStage(id, stage);
-            router.refresh();
-          }}
           onApprove={async (id) => {
             await approveWork(id);
             router.refresh();
@@ -431,6 +426,7 @@ export function WorkListTable({
             const full = await getWork(id);
             setWorkDetail(full);
           }}
+          aiAgentInfo={workDetail.aiAgentInfo as any}
         />
       )}
     </>

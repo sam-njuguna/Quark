@@ -5,6 +5,7 @@ import { work } from "@/db/schema/work";
 import { requireUser } from "@/actions/auth/session";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { updateWorkEmbedding } from "./embeddings";
 
 interface UpdateWorkInput {
   title?: string;
@@ -28,6 +29,8 @@ export async function updateWork(workId: string, input: UpdateWorkInput) {
     .update(work)
     .set({ ...input, updatedAt: new Date() })
     .where(eq(work.id, workId));
+
+  updateWorkEmbedding(workId).catch(console.error);
 
   revalidatePath("/");
 

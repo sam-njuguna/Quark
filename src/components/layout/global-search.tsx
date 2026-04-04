@@ -14,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { searchWork } from "@/actions/work/search";
+import { semanticSearch } from "@/actions/search/semantic";
 import {
   SearchIcon,
   InboxIcon,
@@ -22,6 +23,7 @@ import {
   SettingsIcon,
   CirclePlus,
   ZapIcon,
+  SparklesIcon,
 } from "lucide-react";
 
 const stageColors: Record<string, string> = {
@@ -46,6 +48,7 @@ type SearchResult = {
   title: string;
   type: string;
   stage: string;
+  similarity?: number;
 };
 
 export function GlobalSearch() {
@@ -54,6 +57,7 @@ export function GlobalSearch() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
+  const [aiSearch, setAiSearch] = useState(false);
 
   // Cmd+K / Ctrl+K shortcut
   useEffect(() => {
@@ -78,10 +82,29 @@ export function GlobalSearch() {
     }
   }, []);
 
+  const doAISearch = useCallback(async (q: string) => {
+    if (!q.trim()) return;
+    setLoading(true);
+    try {
+      const data = await semanticSearch({ query: q, limit: 5 });
+      setResults(data);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
-    const t = setTimeout(() => doSearch(query), 200);
+    const t = setTimeout(() => {
+      if (query.startsWith("ai:")) {
+        setAiSearch(true);
+        doAISearch(query.slice(3).trim());
+      } else {
+        setAiSearch(false);
+        doSearch(query);
+      }
+    }, 200);
     return () => clearTimeout(t);
-  }, [query, doSearch]);
+  }, [query, doSearch, doAISearch]);
 
   const nav = (path: string) => {
     setOpen(false);
@@ -106,7 +129,7 @@ export function GlobalSearch() {
 
       <CommandDialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) setQuery(""); }}>
         <CommandInput
-          placeholder="Search work items, navigate..."
+          placeholder="Search work items, navigate... (type 'ai:' for AI search)"
           value={query}
           onValueChange={setQuery}
         />
@@ -116,7 +139,7 @@ export function GlobalSearch() {
           </CommandEmpty>
 
           {results.length > 0 && (
-            <CommandGroup heading="Work items">
+            <CommandGroup heading={aiSearch ? "AI Search Results" : "Work items"}>
               {results.map((r) => (
                 <CommandItem
                   key={r.id}
@@ -124,10 +147,16 @@ export function GlobalSearch() {
                   onSelect={() => nav(`/dashboard/all?search=${encodeURIComponent(r.title)}`)}
                   className="gap-2"
                 >
+                  {aiSearch && <SparklesIcon className="size-4 text-amber-500" />}
                   <span className="truncate flex-1">{r.title}</span>
                   <Badge className={`${stageColors[r.stage]} border-0 text-[10px] shrink-0`}>
                     {stageLabels[r.stage]}
                   </Badge>
+                  {r.similarity !== undefined && (
+                    <span className="text-xs text-amber-600 dark:text-amber-400 shrink-0">
+                      {Math.round(r.similarity * 100)}%
+                    </span>
+                  )}
                   <span className="text-xs text-muted-foreground capitalize shrink-0">{r.type}</span>
                 </CommandItem>
               ))}

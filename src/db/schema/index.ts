@@ -21,3 +21,5 @@ export * from "./notification-preferences";
 export * from "./time-tracking";
 export * from "./custom-fields";
 export * from "./availability";
+export * from "./capabilities";
+export * from "./agent";

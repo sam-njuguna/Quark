@@ -34,7 +34,7 @@ export default async function NewWorkPage() {
           className="text-muted-foreground hover:text-foreground -ml-2 gap-1.5"
           asChild
         >
-          <Link href="/dashboard">
+          <Link href="/dashboard/all">
             <ArrowLeftIcon className="size-3.5" />
             Back
           </Link>

@@ -7,6 +7,8 @@ import {
   EyeIcon,
   AlertCircleIcon,
   UserPlusIcon,
+  SparklesIcon,
+  LoaderIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -91,6 +93,30 @@ export function KanbanCard({
             <span className="text-[10px] font-semibold tracking-widest text-muted-foreground/70 uppercase">
               {type.label}
             </span>
+            {item.aiStatus === "running" && (
+              <span className="flex items-center gap-1 text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">
+                <LoaderIcon className="size-2.5 animate-spin" />
+                AI
+              </span>
+            )}
+            {item.aiStatus === "assigned" && (
+              <span className="flex items-center gap-1 text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300">
+                <SparklesIcon className="size-2.5" />
+                AI
+              </span>
+            )}
+            {item.aiStatus === "completed" && (
+              <span className="flex items-center gap-1 text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300">
+                <SparklesIcon className="size-2.5" />
+                Done
+              </span>
+            )}
+            {item.aiStatus === "failed" && (
+              <span className="flex items-center gap-1 text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300">
+                <AlertCircleIcon className="size-2.5" />
+                Failed
+              </span>
+            )}
             {teamName && (
               <span className="ml-auto text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-primary/10 text-primary/80 truncate max-w-[80px]">
                 {teamName}
@@ -127,14 +153,6 @@ export function KanbanCard({
             className="line-clamp-2 text-xs text-muted-foreground/80 leading-relaxed *:inline"
             dangerouslySetInnerHTML={{ __html: item.description }}
           />
-        )}
-
-        {/* Unassigned note */}
-        {isUnassigned && (
-          <div className="flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400 font-medium">
-            <UserPlusIcon className="size-3 shrink-0" />
-            <span>Unassigned — click to assign yourself</span>
-          </div>
         )}
 
         {due && (

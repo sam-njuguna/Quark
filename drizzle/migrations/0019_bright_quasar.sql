@@ -1,0 +1,1 @@
+ALTER TABLE "work" ADD COLUMN "ai_custom_instructions" text;

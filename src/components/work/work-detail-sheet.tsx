@@ -18,6 +18,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { FileUpload } from "@/components/work/file-upload";
 import { PdfViewer } from "@/components/work/pdf-viewer";
+import { MarkdownPreview } from "@/components/ui/markdown-preview";
 import {
   Select,
   SelectContent,
@@ -54,6 +55,7 @@ import {
   ChevronsUpDownIcon,
   UserPlusIcon,
   UsersIcon,
+  SparklesIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -140,34 +142,32 @@ interface WorkDetailSheetProps {
   };
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onStartWork?: (workId: string) => Promise<void>;
   onApprove?: (workId: string) => Promise<void>;
   onReject?: (workId: string, feedback: string) => Promise<void>;
   onBlock?: (workId: string, reason: string) => Promise<void>;
   onAddComment?: (workId: string, content: string) => Promise<void>;
-  onAutoAssign?: (workId: string) => Promise<void>;
   onDeleteAttachment?: (attachmentId: string) => Promise<void>;
   currentUserRole?: "member" | "lead" | "admin" | null;
   currentUserId?: string;
   systemRole?: SystemRole;
   availableUsers?: AvailableUser[];
+  aiAgentInfo?: { id: string; name: string; agentType: string } | null;
 }
 
 export function WorkDetailSheet({
   work,
   open,
   onOpenChange,
-  onStartWork,
   onApprove,
   onReject,
   onBlock,
   onAddComment,
-  onAutoAssign,
   onDeleteAttachment,
   currentUserRole,
   currentUserId,
   systemRole,
   availableUsers = [],
+  aiAgentInfo,
 }: WorkDetailSheetProps) {
   const router = useRouter();
   const canManage =
@@ -205,12 +205,16 @@ export function WorkDetailSheet({
     return availableUsers.filter((u) => u.id === currentUserId);
   }, [availableUsers, currentUserId, currentUserRole, systemRole]);
 
+  // If AI is assigned, no one can manually reassign
+  const isAiAssigned = !!aiAgentInfo || work.aiAgentId;
+
   const canAssignOthers = useMemo(() => {
+    if (isAiAssigned) return false;
     const isSuperAdmin = systemRole === "super_admin";
     const isTeamAdmin = currentUserRole === "admin";
     const isLead = currentUserRole === "lead";
     return isSuperAdmin || isTeamAdmin || isLead;
-  }, [currentUserRole, systemRole]);
+  }, [currentUserRole, systemRole, isAiAssigned]);
 
   const handleAssign = async (userId: string) => {
     startTransition(async () => {
@@ -230,13 +234,6 @@ export function WorkDetailSheet({
     if (!work.assignedTo) return null;
     return availableUsers.find((u) => u.id === work.assignedTo);
   }, [work.assignedTo, availableUsers]);
-
-  const handleStartWork = () => {
-    if (!onStartWork) return;
-    startTransition(async () => {
-      await onStartWork(work.id);
-    });
-  };
 
   const handleApprove = () => {
     if (!onApprove) return;
@@ -324,108 +321,31 @@ export function WorkDetailSheet({
 
         <ScrollArea className="flex-1 overflow-hidden">
           <div className="p-6 space-y-6">
-            {/* Assignee Section */}
+            {/* Assignee Section - Show only AI or auto-assign status */}
             <div className="space-y-2">
               <h4 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground/70">
-                Assignee
+                Assigned To
               </h4>
-              {/* Unassigned - show prominent "Assign yourself" button */}
-              {!work.assignedTo && currentUserId && (
-                <Button
-                  onClick={() => handleAssign(currentUserId)}
-                  disabled={isPending}
-                  className="w-full gap-2"
-                  size="sm"
-                >
-                  <UserPlusIcon className="size-4" />
-                  Assign yourself
-                </Button>
-              )}
-              {/* Assigned or has users to choose from */}
-              {work.assignedTo && assignableUsers.length > 0 ? (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full justify-start h-9 px-3"
-                      disabled={isPending}
-                    >
-                      {currentAssignee ? (
-                        <>
-                          <Avatar className="size-5 mr-2">
-                            <AvatarImage
-                              src={currentAssignee.image ?? undefined}
-                            />
-                            <AvatarFallback className="text-[8px]">
-                              {currentAssignee.name.charAt(0).toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
-                          <span className="truncate flex-1 text-left">
-                            {currentAssignee.name}
-                          </span>
-                          {currentAssignee.role && (
-                            <Badge
-                              variant="secondary"
-                              className="ml-2 text-[10px] capitalize"
-                            >
-                              {currentAssignee.role}
-                            </Badge>
-                          )}
-                        </>
-                      ) : (
-                        <>
-                          <UserPlusIcon className="size-4 mr-2 text-muted-foreground" />
-                          <span className="text-muted-foreground">
-                            Unassigned
-                          </span>
-                        </>
-                      )}
-                      <ChevronsUpDownIcon className="size-3 ml-auto text-muted-foreground" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start" className="w-56">
-                    <DropdownMenuLabel className="text-xs">
-                      {canAssignOthers
-                        ? "Assign to team member"
-                        : "Assign to yourself"}
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    {assignableUsers.map((user) => (
-                      <DropdownMenuItem
-                        key={user.id}
-                        className="gap-2"
-                        onSelect={(e) => {
-                          e.preventDefault();
-                          handleAssign(user.id);
-                        }}
-                      >
-                        <Avatar className="size-5">
-                          <AvatarImage src={user.image ?? undefined} />
-                          <AvatarFallback className="text-[8px]">
-                            {user.name.charAt(0).toUpperCase()}
-                          </AvatarFallback>
-                        </Avatar>
-                        <span className="flex-1 truncate">{user.name}</span>
-                        {user.role && (
-                          <Badge
-                            variant="secondary"
-                            className="text-[10px] capitalize"
-                          >
-                            {user.role}
-                          </Badge>
-                        )}
-                        {user.id === work.assignedTo && (
-                          <CheckCircleIcon className="size-3 text-primary" />
-                        )}
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
+              {/* AI Agent Assigned - Show info */}
+              {isAiAssigned ? (
+                <div className="flex items-center gap-2 p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
+                  <span className="text-lg">🤖</span>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
+                      {aiAgentInfo?.name || "AI Agent"}
+                    </p>
+                    <p className="text-xs text-amber-600 dark:text-amber-400">
+                      {work.aiStatus === "running" ? "Processing..." : 
+                       work.aiStatus === "completed" ? "Completed" : "Assigned to AI"}
+                    </p>
+                  </div>
+                </div>
               ) : (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground p-2 rounded-md bg-muted/50">
-                  <UsersIcon className="size-4" />
-                  <span>No team members available</span>
+                <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/30 border border-dashed">
+                  <SparklesIcon className="size-4 text-muted-foreground" />
+                  <p className="text-xs text-muted-foreground">
+                    AI will auto-assign when work begins
+                  </p>
                 </div>
               )}
             </div>
@@ -530,13 +450,20 @@ export function WorkDetailSheet({
                   </Badge>
                 </h4>
                 {work.outputs[0].contentType === "markdown" ? (
-                  <div className="rounded-lg border bg-muted/30 p-4 text-sm">
-                    <pre className="whitespace-pre-wrap font-sans text-sm text-foreground">
-                      {typeof work.outputs[0].content === "object" &&
-                      "text" in work.outputs[0].content
-                        ? String(work.outputs[0].content.text)
-                        : JSON.stringify(work.outputs[0].content, null, 2)}
-                    </pre>
+                  <div className="rounded-lg border bg-muted/30 p-4 max-h-80 overflow-y-auto">
+                    <MarkdownPreview
+                      content={
+                        typeof work.outputs[0].content === "object" &&
+                        "markdown" in work.outputs[0].content
+                          ? String(work.outputs[0].content.markdown)
+                          : typeof work.outputs[0].content === "object" &&
+                            "text" in work.outputs[0].content
+                          ? String(work.outputs[0].content.text)
+                          : typeof work.outputs[0].content === "string"
+                          ? String(work.outputs[0].content)
+                          : JSON.stringify(work.outputs[0].content, null, 2)
+                      }
+                    />
                   </div>
                 ) : work.outputs[0].contentType === "files" ? (
                   <div className="space-y-2">
@@ -619,147 +546,25 @@ export function WorkDetailSheet({
 
             <Separator />
 
-            {/* Actions */}
+            {/* Stage Status - Show AI auto-progress instead of manual controls */}
             <div className="space-y-2">
               <h4 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground/70">
-                Actions
+                Stage
               </h4>
-
-              {work.stage === "new" && onStartWork && canManage && (
-                <Button
-                  onClick={handleStartWork}
-                  disabled={isPending}
-                  variant="outline"
-                  className="w-full"
-                  size="sm"
-                >
-                  <TagIcon className="mr-2 size-4" />
-                  Triage & Assign
-                </Button>
-              )}
-
-              {work.stage === "new" && onAutoAssign && canManage && (
-                <Button
-                  onClick={() =>
-                    startTransition(async () => {
-                      await onAutoAssign(work.id);
-                    })
-                  }
-                  disabled={isPending}
-                  variant="outline"
-                  className="w-full"
-                  size="sm"
-                >
-                  <UserIcon className="mr-2 size-4" />
-                  Auto-Assign
-                </Button>
-              )}
-
-              {work.stage === "triaged" && onStartWork && (
-                <Button
-                  onClick={handleStartWork}
-                  disabled={isPending}
-                  className="w-full"
-                  size="sm"
-                >
-                  <PlayIcon className="mr-2 size-4" />
-                  Start Working
-                </Button>
-              )}
-
-              {work.stage === "awaiting_review" && (
-                <div className="space-y-2">
-                  {onApprove && (
-                    <Button
-                      onClick={handleApprove}
-                      disabled={isPending}
-                      className="w-full"
-                      size="sm"
-                    >
-                      <CheckCircleIcon className="mr-2 size-4" />
-                      Approve
-                    </Button>
-                  )}
-                  {onReject && !showRejectForm && (
-                    <Button
-                      onClick={() => setShowRejectForm(true)}
-                      variant="outline"
-                      className="w-full"
-                      size="sm"
-                    >
-                      <XCircleIcon className="mr-2 size-4" />
-                      Request Revision
-                    </Button>
-                  )}
-                  {showRejectForm && (
-                    <div className="space-y-2 p-3 rounded-lg border bg-muted/30">
-                      <Textarea
-                        placeholder="Explain what needs to be changed..."
-                        value={rejectFeedback}
-                        onChange={(e) => setRejectFeedback(e.target.value)}
-                        className="text-sm"
-                      />
-                      <div className="flex gap-2">
-                        <Button
-                          onClick={handleReject}
-                          disabled={isPending || !rejectFeedback.trim()}
-                          size="sm"
-                        >
-                          Submit Feedback
-                        </Button>
-                        <Button
-                          onClick={() => setShowRejectForm(false)}
-                          variant="ghost"
-                          size="sm"
-                        >
-                          Cancel
-                        </Button>
-                      </div>
-                    </div>
-                  )}
+              <div className="flex items-center gap-2">
+                <Badge className={stageColors[work.stage]}>
+                  {stageLabels[work.stage]}
+                </Badge>
+                {isAiAssigned && (
+                  <span className="text-xs text-muted-foreground">
+                    (AI auto-advances)
+                  </span>
+                )}
+              </div>
+              {isAiAssigned && work.aiProgress && (
+                <div className="text-xs text-muted-foreground mt-2">
+                  AI Progress: {Object.keys(work.aiProgress).length} stages completed
                 </div>
-              )}
-
-              {["in_progress", "revision"].includes(work.stage) && onBlock && (
-                <>
-                  {!showBlockForm ? (
-                    <Button
-                      onClick={() => setShowBlockForm(true)}
-                      variant="outline"
-                      className="w-full"
-                      size="sm"
-                    >
-                      <AlertTriangleIcon className="mr-2 size-4" />
-                      Mark as Blocked
-                    </Button>
-                  ) : (
-                    <div className="space-y-2 p-3 rounded-lg border bg-muted/30">
-                      <Textarea
-                        placeholder="Explain why this is blocked..."
-                        value={blockReason}
-                        onChange={(e) => setBlockReason(e.target.value)}
-                        className="text-sm"
-                      />
-                      <div className="flex gap-2">
-                        <Button
-                          onClick={handleBlock}
-                          disabled={isPending || !blockReason.trim()}
-                          size="sm"
-                          variant="destructive"
-                        >
-                          Block Work
-                        </Button>
-                        <Button
-                          onClick={() => setShowBlockForm(false)}
-                          variant="ghost"
-                          size="sm"
-                        >
-                          Cancel
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-                </>
               )}
             </div>
 

@@ -21,6 +21,8 @@ import {
 } from "@/components/ui/popover";
 import { createWork } from "@/actions/work/create";
 import { listGithubRepos } from "@/actions/integrations/github";
+import { listAgents } from "@/actions/agents";
+import { AISuggestions } from "./ai-suggestions";
 import { format } from "date-fns";
 import {
   CalendarIcon,
@@ -38,77 +40,32 @@ const TEMPLATES = [
   {
     id: "pr_review",
     label: "PR Review",
-    type: "code" as const,
     title: "Review PR #",
-    description: "Code review for pull request",
-    instructions:
-      "Review the pull request for code quality, bugs, and adherence to standards. Check logic, edge cases, and test coverage.",
-    successCriteria: [
-      "All comments addressed",
-      "No critical bugs found",
-      "Tests pass",
-    ],
-    priority: 1,
+    description: "Code review for pull request - check for bugs, quality, and standards",
   },
   {
     id: "research",
-    label: "Research Brief",
-    type: "research" as const,
+    label: "Research",
     title: "Research: ",
-    description: "Research and summarise findings",
-    instructions:
-      "Research the topic thoroughly. Summarise key findings, trade-offs, and a recommended approach. Include sources.",
-    successCriteria: [
-      "Summary under 500 words",
-      "At least 3 sources cited",
-      "Recommendation included",
-    ],
-    priority: 2,
+    description: "Research and summarise findings, include sources and recommendations",
   },
   {
     id: "draft_email",
     label: "Draft Email",
-    type: "communication" as const,
     title: "Draft: ",
-    description: "Write and review email draft",
-    instructions:
-      "Draft a professional email. Keep it concise and clear. Include subject line, greeting, body, and call to action.",
-    successCriteria: [
-      "Under 200 words",
-      "Clear call to action",
-      "Professional tone",
-    ],
-    priority: 2,
+    description: "Write a professional email draft",
   },
   {
     id: "meeting_notes",
     label: "Meeting Notes",
-    type: "meeting" as const,
     title: "Meeting Notes: ",
-    description: "Capture and distribute meeting notes",
-    instructions:
-      "Attend or review the meeting recording. Document attendees, agenda, decisions made, and action items with owners.",
-    successCriteria: [
-      "Action items listed with owners",
-      "Decisions captured",
-      "Shared with attendees",
-    ],
-    priority: 3,
+    description: "Capture and distribute meeting notes with action items",
   },
   {
     id: "write_docs",
     label: "Write Docs",
-    type: "document" as const,
     title: "Document: ",
     description: "Write technical documentation",
-    instructions:
-      "Write clear, accurate documentation. Include overview, usage examples, parameters/options, and edge cases.",
-    successCriteria: [
-      "Examples included",
-      "Reviewed for accuracy",
-      "Published to docs site",
-    ],
-    priority: 2,
   },
 ];
 
@@ -185,10 +142,7 @@ export function CreateWorkForm({
   const [error, setError] = useState<string | null>(null);
 
   const [title, setTitle] = useState("");
-  const [type, setType] = useState<string>("task");
   const [description, setDescription] = useState("");
-  const [instructions, setInstructions] = useState("");
-  const [priority, setPriority] = useState<number>(2);
   const [dueDate, setDueDate] = useState<Date | undefined>();
   const [meetingTime, setMeetingTime] = useState("09:00");
   const [meetingUrl, setMeetingUrl] = useState("");
@@ -196,15 +150,34 @@ export function CreateWorkForm({
   const [githubRepos, setGithubRepos] = useState<
     { full_name: string; name: string }[]
   >([]);
-  const [successCriteria, setSuccessCriteria] = useState<string[]>([]);
-  const [newCriteria, setNewCriteria] = useState("");
-  const [assignedTo, setAssignedTo] = useState("");
   const [selectedTeamId, setSelectedTeamId] = useState(
     teamId ?? defaultTeamId ?? "",
   );
+  const [selectedAgentId, setSelectedAgentId] = useState("");
+  const [availableAgents, setAvailableAgents] = useState<
+    { id: string; name: string; agentType: string }[]
+  >([]);
+  const [customInstructions, setCustomInstructions] = useState("");
 
-  const isMeeting = type === "meeting";
-  const isCode = type === "code";
+  useEffect(() => {
+    if (!selectedTeamId) {
+      setAvailableAgents([]);
+      return;
+    }
+    listAgents(selectedTeamId)
+      .then((agents) => {
+        setAvailableAgents(agents.filter((a: any) => a.isActive));
+      })
+      .catch(() => {
+        setAvailableAgents([]);
+      });
+  }, [selectedTeamId]);
+
+  const isMeeting = false;
+  const isCode = title.toLowerCase().includes("code") || 
+                  title.toLowerCase().includes("fix") || 
+                  title.toLowerCase().includes("implement") ||
+                  title.toLowerCase().includes("build");
 
   useEffect(() => {
     if (!isCode || !selectedTeamId) return;
@@ -232,23 +205,8 @@ export function CreateWorkForm({
   };
 
   const applyTemplate = (tpl: (typeof TEMPLATES)[number]) => {
-    setType(tpl.type);
     setTitle(tpl.title);
     setDescription(tpl.description);
-    setInstructions(tpl.instructions);
-    setPriority(tpl.priority);
-    setSuccessCriteria(tpl.successCriteria);
-  };
-
-  const addCriteria = () => {
-    if (newCriteria.trim()) {
-      setSuccessCriteria([...successCriteria, newCriteria.trim()]);
-      setNewCriteria("");
-    }
-  };
-
-  const removeCriteria = (index: number) => {
-    setSuccessCriteria(successCriteria.filter((_, i) => i !== index));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -265,23 +223,13 @@ export function CreateWorkForm({
         const effectiveDueDate = isMeeting ? getMeetingDueDate() : dueDate;
         await createWork({
           title: title.trim(),
-          type: type as
-            | "task"
-            | "meeting"
-            | "research"
-            | "code"
-            | "document"
-            | "communication",
           description: description.trim() || undefined,
-          instructions: instructions.trim() || undefined,
-          priority,
           dueDate: effectiveDueDate?.toISOString(),
           meetingUrl: isMeeting ? meetingUrl.trim() || undefined : undefined,
           githubRepo: isCode ? githubRepo || undefined : undefined,
-          successCriteria:
-            successCriteria.length > 0 ? successCriteria : undefined,
           teamId: selectedTeamId || teamId || undefined,
-          assignedTo: assignedTo || undefined,
+          aiAgentId: selectedAgentId || undefined,
+          aiCustomInstructions: selectedAgentId && customInstructions.trim() ? customInstructions.trim() : undefined,
         });
 
         if (onSuccess) {
@@ -298,29 +246,6 @@ export function CreateWorkForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Templates */}
-      <div className="space-y-3">
-        <div className="flex items-center gap-2">
-          <ZapIcon className="size-4 text-primary" />
-          <p className="text-sm font-medium">Quick templates</p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {TEMPLATES.map((tpl) => (
-            <Button
-              key={tpl.id}
-              type="button"
-              onClick={() => applyTemplate(tpl)}
-              disabled={isPending}
-              variant={"outline"}
-              className="text-muted-foreground hover:text-primary border-dashed"
-            >
-              <span className="size-1.5 rounded-full bg-current opacity-50" />
-              {tpl.label}
-            </Button>
-          ))}
-        </div>
-      </div>
-
       {error && (
         <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-600 dark:border-red-900/50 dark:bg-red-900/20 dark:text-red-400">
           {error}
@@ -341,68 +266,9 @@ export function CreateWorkForm({
           className="text-base "
           autoFocus
         />
+        {title.length > 3 && <AISuggestions title={title} description={description} />}
       </div>
 
-      {/* Type and Priority in a row */}
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-2">
-          <Label
-            htmlFor="type"
-            className="text-xs font-medium text-muted-foreground"
-          >
-            Type
-          </Label>
-          <Select value={type} onValueChange={setType} disabled={isPending}>
-            <SelectTrigger className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {workTypes.map((t) => (
-                <SelectItem key={t.value} value={t.value}>
-                  {t.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="space-y-2">
-          <Label
-            htmlFor="priority"
-            className="text-xs font-medium text-muted-foreground"
-          >
-            Priority
-          </Label>
-          <Select
-            value={priority.toString()}
-            onValueChange={(v) => setPriority(parseInt(v))}
-            disabled={isPending}
-          >
-            <SelectTrigger value={priority.toString()} className=" w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {priorities.map((p) => (
-                <SelectItem key={p.value} value={p.value.toString()}>
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={cn(
-                        "size-2 rounded-full",
-                        p.value === 1 && "bg-red-500",
-                        p.value === 2 && "bg-amber-500",
-                        p.value === 3 && "bg-muted-foreground",
-                      )}
-                    />
-                    <span>{p.label}</span>
-                  </div>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      {/* Team and Assignee */}
       {(availableUsers.length > 0 ||
         (isPrivileged && availableTeams.length > 0)) && (
         <div className="grid gap-4 sm:grid-cols-2">
@@ -416,7 +282,10 @@ export function CreateWorkForm({
               </Label>
               <Select
                 value={selectedTeamId}
-                onValueChange={setSelectedTeamId}
+                onValueChange={(v) => {
+                  setSelectedTeamId(v);
+                  setSelectedAgentId("");
+                }}
                 disabled={isPending}
               >
                 <SelectTrigger className="w-full">
@@ -432,30 +301,57 @@ export function CreateWorkForm({
               </Select>
             </div>
           )}
-          {availableUsers.length > 0 && (
+          
+          {availableAgents.length > 0 && (
             <div className="space-y-2">
               <Label
-                htmlFor="assignee"
+                htmlFor="agent"
                 className="text-xs font-medium text-muted-foreground"
               >
-                Assign to
+                AI Agent (optional)
               </Label>
               <Select
-                value={assignedTo}
-                onValueChange={setAssignedTo}
+                value={selectedAgentId}
+                onValueChange={setSelectedAgentId}
                 disabled={isPending}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Unassigned" />
+                  <SelectValue placeholder="Any available agent" />
                 </SelectTrigger>
                 <SelectContent>
-                  {availableUsers.map((u) => (
-                    <SelectItem key={u.id} value={u.id}>
-                      {u.name || u.email}
-                    </SelectItem>
-                  ))}
+                  {availableAgents.length === 0 ? (
+                    <div className="p-4 text-sm text-muted-foreground text-center">
+                      No AI agents available
+                    </div>
+                  ) : (
+                    availableAgents.map((agent) => (
+                      <SelectItem key={agent.id} value={agent.id}>
+                        {agent.name}
+                      </SelectItem>
+                    ))
+                  )}
                 </SelectContent>
               </Select>
+
+              {selectedAgentId && (
+                <div className="space-y-2">
+                  <Label
+                    htmlFor="customInstructions"
+                    className="text-xs font-medium text-muted-foreground"
+                  >
+                    Custom Instructions for AI
+                  </Label>
+                  <textarea
+                    id="customInstructions"
+                    placeholder="Describe rules/instructions the AI should follow (e.g., 'Use simple language', 'Include code examples', 'Focus on actionable steps')"
+                    value={customInstructions}
+                    onChange={(e) => setCustomInstructions(e.target.value)}
+                    disabled={isPending}
+                    rows={3}
+                    className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                  />
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -595,97 +491,6 @@ export function CreateWorkForm({
           disabled={isPending}
         />
       </div>
-
-      {/* AI Instructions - Collapsible feel */}
-      <details className="group  border">
-        <summary className="flex cursor-pointer items-center justify-between p-4 text-sm font-medium hover:bg-muted/50 transition-colors">
-          <div className="flex items-center gap-2">
-            <ZapIcon className="size-4 text-primary" />
-            <span>AI Instructions</span>
-            <span className="text-xs text-muted-foreground">(optional)</span>
-          </div>
-          <svg
-            className="size-4 text-muted-foreground transition-transform group-open:rotate-180"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M19 9l-7 7-7-7"
-            />
-          </svg>
-        </summary>
-        <div className="border-t p-4 space-y-4">
-          <div className="space-y-2">
-            <Label className="text-xs font-medium text-muted-foreground">
-              Instructions
-            </Label>
-            <RichEditor
-              placeholder="e.g., Review the code changes, check for security issues, ensure tests pass..."
-              onChange={(html) => setInstructions(html)}
-              disabled={isPending}
-            />
-            <p className="text-xs text-muted-foreground">
-              These instructions will be shown to the AI agent working on this
-              task.
-            </p>
-          </div>
-
-          <div className="space-y-2">
-            <Label className="text-xs font-medium text-muted-foreground">
-              Success Criteria
-            </Label>
-            <div className="space-y-2">
-              {successCriteria.map((criteria, index) => (
-                <div
-                  key={index}
-                  className="flex items-center gap-2  bg-muted/50 border px-3 py-2 text-sm"
-                >
-                  <span className="flex-1">{criteria}</span>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="size-6 p-0"
-                    onClick={() => removeCriteria(index)}
-                    disabled={isPending}
-                  >
-                    <XIcon className="size-3" />
-                  </Button>
-                </div>
-              ))}
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Add a success criterion..."
-                  value={newCriteria}
-                  onChange={(e) => setNewCriteria(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      addCriteria();
-                    }
-                  }}
-                  className=""
-                  disabled={isPending}
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  className="shrink-0"
-                  onClick={addCriteria}
-                  disabled={isPending || !newCriteria.trim()}
-                >
-                  <CirclePlus className="size-4" />
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </details>
 
       {/* Actions */}
       <div className="flex justify-end gap-3 pt-2">

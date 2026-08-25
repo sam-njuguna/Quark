@@ -12,6 +12,7 @@ Welcome to the Quark documentation.
 | [Agent Guidelines](Agents.md)   | How AI agents should use Quark                |
 
 ## Architecture Overview
+Replace with mermaid
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
